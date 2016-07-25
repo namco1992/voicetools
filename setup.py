@@ -26,6 +26,6 @@ setup(name=NAME,
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          'requests', 'wolframalpha',
+          'requests',
       ],
 )
