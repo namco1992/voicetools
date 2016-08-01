@@ -1,22 +1,17 @@
 # coding: utf-8
 import os
 import sys
-import logging
 import time
 
 import RPi.GPIO as GPIO
 
-HOME = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+HOME = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(HOME)
 
-from raspi_assistant.config.installer import install_logger
-from raspi_assistant.config import Path, GPIO_Config
-from raspi_assistant.src.handler.assistant_handler import AssistantHandler
+from raspi_assistant.settings import GPIO_Config
+from raspi_assistant.utils import init_logging_handler
 
-
-install_logger(os.path.join(Path.LOG_DIR, 'raspi_assistant.log'))
-logger = logging.getLogger()
+logger = init_logging_handler()
 
 
 def set_GPIO():
@@ -30,6 +25,7 @@ def set_voice_sensor():
 
 
 def loop():
+    # 初始化
     assistant_handler = AssistantHandler()
     try:
         while True:
