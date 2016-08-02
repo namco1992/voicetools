@@ -1,35 +1,33 @@
 # coding: utf-8
 import subprocess
+import logging
 import os
+from io import BytesIO
+from functools import wraps
 
+import jieba
 import redis
-from voicetools import BaiduVoice
+from voicetools import BaiduVoice, TuringRobot
 
 from .get_answer_handler import get_answer, generate_response
 from .weather_handler import query_weather
-from .settings import RedisConfig as RC
-from .utils import AudioHandler
+from .settings import RedisConfig as RC, Action
+from .utils import AudioHandler, Keyword
+from .constants import FUNC_MAP, KEYWORDS
 
 conn_pool = redis.ConnectionPool(host=RC.HOST_ADDR, port=RC.PORT, db=RC.DB)
+logger = logging.getLogger()
 
 
 class BaseHandler(object):
     """docstring for BaseHandler"""
 
-
-    def get_audio(self, content):
-        # get audio from redis or
-        # text_to_audio
-        return text_to_audio(content)
-
-    def record(self, file_path, duration):
-        return subprocess.call('arecord -D "plughw:1,0" -d %d -f S16_LE -c1 -r16000 %s' % (duration, file_path), shell=True)
-
-    def play_audio(self, file_path):
-        subprocess.call('mpg123 %s' % file_path, shell=True)
-
-    def play_wav(self, file_path):
-        subprocess.call('omxplayer -o local %s' % file_path, shell=True)
+    @staticmethod
+    def cache_wrapper(self, func):
+        @wraps(func)
+        def _(content):
+            # self.redis_client
+            return _
 
 
 class MainHandler(BaseHandler):
@@ -42,15 +40,28 @@ class MainHandler(BaseHandler):
         self.audio_handler = AudioHandler()
 
     def receive(self):
-        self.audio_handler.record(6, )
-        return self.bv.asr()
+        f = BytesIO()
+        self.audio_handler.record(6, f)
+        return self.bv.asr(f)
 
-    def process(self):
-        pass
+    def process(self, results):
+        seg_list = jieba.cut(results[0])
+        command = Keyword(list(set(seg_list) & KEYWORDS))
+        return FUNC_MAP.get(command.value, None)
 
-    def execute(self):
-        pass
+    def execute(self, func):
+        return func()
 
-    def feedback(self):
-        pass
+    @BaseHandler.cache_wrapper
+    def feedback(self, content):
+        if content:
+            audio = self.bv.tts(content)
+        else:
+            audio = self.bv.tts('默认')
+        self.audio_handler.play(audio)
 
+    def worker(self):
+        results = self.receive()
+        func = self.process(results)
+        content = self.execute(func)
+        self.feedback(content)

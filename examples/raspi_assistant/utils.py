@@ -5,7 +5,6 @@ import pyaudio
 import wave
 from logging.handlers import TimedRotatingFileHandler
 from .settings import LogConfig as LC
-from .settings import ConsName
 
 
 def init_logging_handler():
@@ -76,3 +75,32 @@ class AudioHandler(object):
         stream.close()
 
         p.terminate()
+
+
+class ActionHandler(object):
+
+    @staticmethod
+    def memo():
+        return assistant.make_memo()
+
+    @staticmethod
+    def play_memo():
+        today_record = '.'.join((str(datetime.date.today()), 'mp3'))
+        assistant.play_audio(os.path.join(Path.VOICE_DIR, today_record))
+
+    @staticmethod
+    def weather_tomo():
+        ret, content = query_weather(Action.WeatherTomorrow)
+        assistant.speak(content)
+
+    @staticmethod
+    def weather_today():
+        ret, content = query_weather(Action.WeatherToday)
+        assistant.speak(content)
+
+
+class Keyword(object):
+    """docstring for Keyword"""
+    def __init__(self, list_):
+        list_.sort()
+        self.value = '/'.join(list_)

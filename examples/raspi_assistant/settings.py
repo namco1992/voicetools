@@ -17,8 +17,9 @@ class RedisConfig(object):
 # emotion config
 happiness_threshold = 0.6
 
-# GPIO config
+
 class GPIO_Config(object):
+    """GPIO config"""
     VOICE_SENSOR = 4
 
 
@@ -29,15 +30,15 @@ class Path(object):
 
 
 class Action(object):
-    Record = 'record'
-    PlayRecord = 'play_record'
+    Memo = 'memo'
+    PlayMemo = 'play_memo'
     WeatherTomorrow = 'weather_tomo'
     WeatherToday = 'weather_today'
 
 
 class LogConfig(object):
     LOGGING_FORMAT = '%(asctime)s %(funcName)s:%(lineno)d [%(levelname)s] %(message)s'
-    LOGGING_LOCATION = './log/automatic_deploy.log'
+    LOGGING_LOCATION = './log/raspi_assistant.log'
     LOGGING_LEVEL = logging.DEBUG
 
 

@@ -9,12 +9,7 @@ from raspi_assistant.config import happiness_threshold, Action
 
 
 def get_answer(content):
-    print content
-    if any((x in content for x in movement)):
-        # TODO: 判断运动类型
-        print 'I got move'
-        return generate_response(), u'move'
-    elif u'天气' in content:
+    if u'天气' in content:
         if u'明天' in content:
             print 'I got weather and tomorrow'
             return generate_response(), Action.WeatherTomorrow
