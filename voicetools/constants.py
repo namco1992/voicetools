@@ -15,13 +15,6 @@ class TuringUrl(object):
     turing_url = 'http://www.tuling123.com/openapi/api'
 
 
-# redis config
-host_addr = 'localhost'
-port = 6379
-db = 0
-socket_timeout = 1
-
-
 # error no
 class ErrNo(object):
     tts_err_no = {
