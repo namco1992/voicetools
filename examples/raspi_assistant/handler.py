@@ -26,7 +26,8 @@ FUNC_MAP = {
 class BaseHandler(object):
 
     def __init__(self):
-        self.token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
+        token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
+        self.token = token['access_token']
         self.bv = BaiduVoice(self.token)
         self.audio_handler = AudioHandler()
 
@@ -34,7 +35,7 @@ class BaseHandler(object):
         self.feedback(generate_response())
         f = BytesIO()
         self.audio_handler.record(sec, f)
-        return self.bv.asr(f)
+        return self.bv.asr(f.read())
 
     def process(self, results):
         seg_list = list(jieba.cut(results[0], cut_all=True))
@@ -48,11 +49,9 @@ class BaseHandler(object):
     @cache
     def feedback(self, content=None):
         if content:
-            f = BytesIO()
-            audio = self.bv.tts(content)
-            f.write(audio)
-            self.audio_handler.play(f)
-            return f
+            audio_mp3 = BytesIO(self.bv.tts(content))
+            self.audio_handler.play_mp3(audio_mp3)
+            return audio_mp3
         else:
             return None
 
@@ -160,11 +159,11 @@ class ActionHandler(object):
 
     @staticmethod
     def weather_tomo(bv, audio_handler, result):
-        return ActionHandler.query_weather('today')
+        return ActionHandler.query_weather('tomo')
 
     @staticmethod
     def weather_today(bv, audio_handler, result):
-        return ActionHandler.query_weather('tomo')
+        return ActionHandler.query_weather('today')
 
     @staticmethod
     def query_weather(today_or_tomo):

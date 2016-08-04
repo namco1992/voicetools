@@ -6,6 +6,7 @@ import random
 from functools import wraps
 from hashlib import md5
 
+import vlc
 import redis
 import pyaudio
 import wave
@@ -66,10 +67,10 @@ class BaiduAPIClient(BaseClient):
         self.apikey = BAC.API_KEY
         self.headers = {'apikey': self.apikey}
 
-    def request_handler(self, params):
+    def request_handler(self, url, params):
         try:
             resp = self.get_request(
-                url=BAC.WEATHER_URL,
+                url=url,
                 params=params,
                 headers=self.headers)
         except Exception, e:
@@ -135,7 +136,7 @@ class AudioHandler(object):
     def play(self, file_):
         wf = wave.open(file_, 'rb')
         p = pyaudio.PyAudio()
-
+        print wf.getparams()
         stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                         channels=wf.getnchannels(),
                         rate=wf.getframerate(),
@@ -151,6 +152,10 @@ class AudioHandler(object):
         stream.close()
 
         p.terminate()
+
+    def play_mp3(self, file_):
+        p = vlc.MediaPlayer(file_)
+        p.play()
 
 
 class Keyword(object):
