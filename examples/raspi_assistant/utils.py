@@ -52,8 +52,9 @@ def cache(func):
         if cache:
             return cache
         else:
-            name, value, ttl = func(*args, **kwargs)
-            cache_handler.set(name, value, ttl)
+            value = func(*args, **kwargs)
+            if value:
+                cache_handler.set(id_, value, 86400*7)
             return value
     return _
 
@@ -156,6 +157,7 @@ class Keyword(object):
     """docstring for Keyword"""
     def __init__(self, list_):
         list_.sort()
+        self.keywords = list_
         self.value = '/'.join(list_)
 
 
@@ -180,8 +182,14 @@ class CacheHandler(object):
     def expire(self, name, ttl):
         return self.client.expire(name, ttl)
 
-    def zset(self, name, key, score):
-        return self.client.zadd(name, score, key)
+    def zset(self, name, key, score, ttl=None):
+        if ttl:
+            pipeline = self.client.pipeline()
+            pipeline.zadd(name, score, key)
+            pipeline.expire(name, ttl)
+            return pipeline.execute()
+        else:
+            self.client.zadd(name, score, key)
 
     def zget(self, name, start, end):
         return self.client.zrange(name, start, end)

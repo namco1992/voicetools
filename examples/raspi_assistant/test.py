@@ -1,10 +1,21 @@
 # coding: utf-8
+import os
+import sys
+import logging
+
+HOME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(HOME)
+
+from raspi_assistant.utils import init_logging_handler
+from raspi_assistant.handler import BaseHandler, ActionHandler
 
 
-class TestName(object):
-    """docstring for TestName"""
-    def __init__(self):
-        print TestName.__name__
+def main():
+    logger = init_logging_handler()
+    handler = BaseHandler()
+    func, result = handler.process(['今天天气怎么样', ])
+    handler.execute(func, result)
 
-    def test(self):
-        print 'test'
+
+if __name__ == '__main__':
+    main()

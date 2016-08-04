@@ -4,12 +4,13 @@ import logging
 from voicetools import (
     APIError, RespError, RecognitionError, VerifyError, QuotaError)
 
-from .utils import Keyword
+# from . import handler
+# from .utils import Keyword
 
 
 class RedisConfig(object):
     """docstring for RedisConfig"""
-    HOST_ADDR = 'localhost'
+    HOST_ADDR = '192.168.1.114'
     PORT = 6379
     DB = 0
     SOCKET_TIMEOUT = 1
@@ -25,7 +26,7 @@ class BasicConfig(object):
     POSITIVE_ANSWER = {
         1: u'等候多时',
         2: u'你回来了',
-        3: u'我听到你说的了',
+        3: u'你需要什么',
         4: u'今天工作辛苦吗',
         5: u'你今天又变帅了',
         6: u'需要我帮你做点什么？'
@@ -37,13 +38,6 @@ class BasicConfig(object):
         3: '我今天心情不太好',
         4: '我想静静，也别问我静静是谁',
         5: '每天都来烦我，你什么时候给我找个男朋友'
-    }
-    FUNC_MAP = {
-        Keyword([u'备忘录', ]).value: 'a',
-        Keyword([u'提醒', ]).value: 'b',
-        Keyword([u'备忘录', u'播放']).value: 'c',
-        Keyword([u'明天', u'天气']).value: 'd',
-        Keyword([u'今天', u'天气']).value: 'e'
     }
 
 
