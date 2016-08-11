@@ -15,12 +15,12 @@ from tempfile import TemporaryFile
 def main():
     logger = init_logging_handler()
     handler = BaseHandler('24.08be72600a465c9ea5a03bbb1615fbb2.2592000.1473492202.282335-8403190')
-    func, result = handler.process(['给我讲个笑话', ])
-    print func, result
-    content = handler.execute(func, result)
-    handler.feedback(content)
+    # func, result = handler.process(['今天的天气', ])
+    # print func, result
+    # content = handler.execute(func, result)
+    # handler.feedback(content)
 
-    # handler.feedback('你是谁啊你是谁')
+    handler.feedback('你是谁啊你是谁')
     # handler.audio_handler.play('test_tts.wav')
     # audio_handler = AudioHandler()
     # audio_handler.record(3, f)
