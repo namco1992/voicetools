@@ -3,6 +3,7 @@ import logging
 import traceback
 from io import BytesIO
 import datetime
+from tempfile import NamedTemporaryFile
 
 import jieba
 from voicetools import BaiduVoice, TuringRobot
@@ -10,7 +11,7 @@ from voicetools import BaiduVoice, TuringRobot
 from .settings import BasicConfig as BC, BaiduAPIConfig as BAC
 from .utils import (
     AudioHandler, Keyword, cache, CacheHandler, timestamp, BaiduAPIClient,
-    generate_response)
+    generate_response, convert_to_wav)
 
 logger = logging.getLogger()
 
@@ -25,11 +26,18 @@ FUNC_MAP = {
 
 class BaseHandler(object):
 
-    def __init__(self):
-        token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
-        self.token = token['access_token']
+    def __init__(self, baidu_token=None):
+        if not baidu_token:
+            token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
+            self.token = token['access_token']
+            print self.token
+        else:
+            self.token = baidu_token
         self.bv = BaiduVoice(self.token)
         self.audio_handler = AudioHandler()
+
+    def __repr__(self):
+        return '<BaseHandler>'
 
     def receive(self, sec=6):
         self.feedback(generate_response())
@@ -49,11 +57,12 @@ class BaseHandler(object):
     @cache
     def feedback(self, content=None):
         if content:
-            audio_mp3 = BytesIO(self.bv.tts(content))
-            self.audio_handler.play_mp3(audio_mp3)
-            return audio_mp3
-        else:
-            return None
+            data = NamedTemporaryFile()
+            data.write(self.bv.tts(content))
+            data.seek(0)
+            # audio_mp3 = BytesIO(self.bv.tts(content))
+            convert_to_wav(data)
+            self.audio_handler.play('output.wav')
 
     def worker(self):
         results = self.receive()
@@ -67,6 +76,7 @@ class ActionHandler(object):
 
     @staticmethod
     def default(bv, audio_handler, result):
+        print 'turing run'
         robot = TuringRobot(BC.TURING_KEY)
         try:
             content = robot.ask_turing(result)

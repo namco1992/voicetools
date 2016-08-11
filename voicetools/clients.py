@@ -11,7 +11,7 @@ class BaseClient(object):
 
     def __init__(self, **kwargs):
         self.connect_timeout = kwargs.get('connect_timeout', 5)
-        self.request_timeout = kwargs.get('request_timeout', 20)
+        self.request_timeout = kwargs.get('request_timeout', 30)
 
     def post_request(self, url, params, headers=None, connect_timeout=None, request_timeout=None):
         connect_timeout = connect_timeout or self.connect_timeout

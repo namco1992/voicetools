@@ -18,9 +18,9 @@ class RedisConfig(object):
 
 class BasicConfig(object):
     LOCATION = '成都'
-    TURING_KEY = 'YOUR_KEY'
-    VOICE_API_KEY = 'YOUR_KEY'
-    VOICE_SECRET = 'YOUR_SECRET'
+    TURING_KEY = '99962c0874ca46b997c694221eaab3fc'
+    VOICE_API_KEY = 'uoA9RW2uB5pw3oQerSBewl8O'
+    VOICE_SECRET = '7319e9ff880c807a40895b4962a9de8c'
     HAPPINESS_THRESHOLD = 0.6
     KEYWORDS = {u'提醒', u'备忘录', u'播放', u'今天', u'明天', u'天气'}
     POSITIVE_ANSWER = {
@@ -53,7 +53,7 @@ class LogConfig(object):
 
 
 class BaiduAPIConfig(object):
-    API_KEY = 'YOUR_KEY'
+    API_KEY = '780aea9d64c182fc847ef8e317aa89bc'
     WEATHER_URL = 'http://apis.baidu.com/heweather/weather/free'
     TODAY_WEATHER_TEXT = \
     u'当前天气{cond}，体感温度{fl}摄氏度，空气湿度百分之{hum}。今日温度为{min}到{max}摄氏度，{txt_d}转{txt_n}，降水概率百分之{pop}，空气质量{qlty}。'

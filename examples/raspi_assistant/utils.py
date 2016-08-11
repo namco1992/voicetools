@@ -3,10 +3,12 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import time
 import random
+import base64
 from functools import wraps
 from hashlib import md5
+from subprocess import Popen, STDOUT
+from io import BytesIO
 
-import vlc
 import redis
 import pyaudio
 import wave
@@ -17,6 +19,11 @@ from .settings import (
     BasicConfig as BC, ErrNo)
 
 conn_pool = redis.ConnectionPool(host=RC.HOST_ADDR, port=RC.PORT, db=RC.DB)
+
+
+def convert_to_wav(file_):
+    p = Popen(['ffmpeg', '-y', '-i', '-', '-f', 'wav', 'output.wav'], stdin=file_ , stdout=None, stderr=None)
+    p.communicate()
 
 
 def init_logging_handler():
@@ -49,14 +56,20 @@ def cache(func):
     def _(*args, **kwargs):
         cache_handler = CacheHandler()
         id_ = unique_id(func, *args, **kwargs)
+        print id_
         cache = cache_handler.get(id_)
         if cache:
-            return cache
+            print 'cached'
+            audio_handler = AudioHandler()
+            audio_handler.play(BytesIO(base64.b64decode(cache)))
+            # return cache
         else:
-            value = func(*args, **kwargs)
-            if value:
-                cache_handler.set(id_, value, 86400*7)
-            return value
+            print 'set cache'
+            func(*args, **kwargs)
+            with open('output.wav', 'rb') as f:
+                encoded_audio = base64.b64encode(f.read())
+                cache_handler.set(id_, encoded_audio, 86400*7)
+            # return buffer_
     return _
 
 
@@ -153,10 +166,6 @@ class AudioHandler(object):
 
         p.terminate()
 
-    def play_mp3(self, file_):
-        p = vlc.MediaPlayer(file_)
-        p.play()
-
 
 class Keyword(object):
     """docstring for Keyword"""
@@ -174,7 +183,7 @@ class CacheHandler(object):
 
     def set(self, name, value, ttl=None):
         if ttl:
-            self.client.setex(name, value, ttl)
+            self.client.setex(name, ttl, value)
         else:
             self.client.set(name, value)
 
