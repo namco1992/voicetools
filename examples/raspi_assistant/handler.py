@@ -62,6 +62,7 @@ class BaseHandler(object):
             data.seek(0)
             # audio_mp3 = BytesIO(self.bv.tts(content))
             convert_to_wav(data)
+            data.close()
             self.audio_handler.play('output.wav')
 
     def worker(self):
