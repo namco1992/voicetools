@@ -41,9 +41,8 @@ class BaseHandler(object):
 
     def receive(self, sec=6):
         self.feedback(generate_response())
-        data = NamedTemporaryFile()
-        self.audio_handler.record(sec, data)
-        return self.bv.asr(data.read())
+        self.audio_handler.record(sec)
+        return self.bv.asr('record.wav')
 
     def process(self, results):
         seg_list = list(jieba.cut(results[0], cut_all=True))

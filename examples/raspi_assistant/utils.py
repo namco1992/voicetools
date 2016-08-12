@@ -124,6 +124,7 @@ class AudioHandler(object):
                         channels=self.CHANNELS,
                         rate=self.RATE,
                         input=True,
+                        input_device_index=0,
                         frames_per_buffer=self.CHUNK)
 
         print("* recording")
@@ -144,8 +145,12 @@ class AudioHandler(object):
         wf.setnchannels(self.CHANNELS)
         wf.setsampwidth(p.get_sample_size(self.FORMAT))
         wf.setframerate(self.RATE)
-        wf.writeframes(b''.join(frames))
+        wf.writeframes(''.join(frames))
         wf.close()
+
+    def arecord(self, record_seconds):
+        p = Popen(['arecord', '-D', '"plughw:1,0"', '-f', 'S16_LE', '-d', record_seconds, 'record.wav'])
+        p.communicate()
 
     def play(self, file_):
         wf = wave.open(file_, 'rb')
