@@ -8,6 +8,7 @@ from functools import wraps
 from hashlib import md5
 from subprocess import Popen, STDOUT
 from io import BytesIO
+from tempfile import NamedTemporaryFile
 
 import redis
 import pyaudio

@@ -41,9 +41,9 @@ class BaseHandler(object):
 
     def receive(self, sec=6):
         self.feedback(generate_response())
-        f = BytesIO()
-        self.audio_handler.record(sec, f)
-        return self.bv.asr(f.read())
+        data = NamedTemporaryFile()
+        self.audio_handler.record(sec, data)
+        return self.bv.asr(data.read())
 
     def process(self, results):
         seg_list = list(jieba.cut(results[0], cut_all=True))
@@ -60,7 +60,6 @@ class BaseHandler(object):
             data = NamedTemporaryFile()
             data.write(self.bv.tts(content))
             data.seek(0)
-            # audio_mp3 = BytesIO(self.bv.tts(content))
             convert_to_wav(data)
             data.close()
             self.audio_handler.play('output.wav')
