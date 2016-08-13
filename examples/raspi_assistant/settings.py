@@ -10,7 +10,7 @@ from voicetools import (
 
 class RedisConfig(object):
     """docstring for RedisConfig"""
-    HOST_ADDR = '192.168.1.114'
+    HOST_ADDR = 'localhost'
     PORT = 6379
     DB = 0
     SOCKET_TIMEOUT = 1
@@ -66,5 +66,5 @@ class ErrNo(object):
     ExceptionMap = {
         3001: QuotaError,
         3002: VerifyError,
-        3303: APIError,
+        3003: APIError,
     }

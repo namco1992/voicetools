@@ -81,7 +81,7 @@ class BaiduClient(BaseClient):
     def asr(self, speech, params):
         headers = {
             'Content-Type': 'audio/%s;rate=%s' % (params.pop('format'), params.pop('rate')),
-            'Content-length': params.pop('len')
+            'Content-length': str(params.pop('len'))
         }
         url = concat_url(BaiduUrl.asr_url, params)
         try:

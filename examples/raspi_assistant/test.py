@@ -23,7 +23,7 @@ def main():
     # handler.feedback('你是谁啊你是谁')
     handler.worker()
     # handler.audio_handler.arecord(5)
-    # handler.audio_handler.play('test_tts.wav')
+    # handler.audio_handler.aplay('output.wav')
     # audio_handler = AudioHandler()
     # audio_handler.record(3, f)
 
