@@ -41,7 +41,8 @@ class BaseHandler(object):
 
     def receive(self, sec=6):
         self.feedback(generate_response())
-        self.audio_handler.record(sec)
+        print 'arecord begin'
+        self.audio_handler.arecord(sec)
         return self.bv.asr('record.wav')
 
     def process(self, results):

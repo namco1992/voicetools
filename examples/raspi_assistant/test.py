@@ -20,7 +20,9 @@ def main():
     # content = handler.execute(func, result)
     # handler.feedback(content)
 
-    handler.feedback('你是谁啊你是谁')
+    # handler.feedback('你是谁啊你是谁')
+    handler.worker()
+    # handler.audio_handler.arecord(5)
     # handler.audio_handler.play('test_tts.wav')
     # audio_handler = AudioHandler()
     # audio_handler.record(3, f)
@@ -32,9 +34,6 @@ def main():
     # with open('test_tts.wav', 'rb') as f:
     #     audio = BytesIO(f.read())
     # handler.audio_handler.play(audio)
-
-    # p = vlc.MediaPlayer("file:///path/to/track.mp3")
-
 
 if __name__ == '__main__':
     main()
