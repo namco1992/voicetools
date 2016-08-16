@@ -150,7 +150,11 @@ class AudioHandler(object):
 
     def arecord(self, record_seconds):
         p = Popen(['arecord', '-D', '"plughw:1,0"', '-f', 'S16_LE', '-d', str(record_seconds), 'record.wav'])
-        p.communicate()
+        p.wait()
+
+    def aplay(self, file_):
+        p = Popen(['aplay', file_])
+        p.wait()
 
     def play(self, file_):
         wf = wave.open(file_, 'rb')

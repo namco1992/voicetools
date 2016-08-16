@@ -62,7 +62,7 @@ class BaseHandler(object):
             data.seek(0)
             convert_to_wav(data)
             data.close()
-            self.audio_handler.play('output.wav')
+            self.audio_handler.aplay('output.wav')
 
     def worker(self):
         results = self.receive()
