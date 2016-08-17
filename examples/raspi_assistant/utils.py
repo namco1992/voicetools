@@ -62,7 +62,7 @@ def cache(func):
         if cache:
             print 'cached'
             audio_handler = AudioHandler()
-            audio_handler.play(BytesIO(base64.b64decode(cache)))
+            audio_handler.aplay(base64.b64decode(cache), is_buffer=True)
             # return cache
         else:
             print 'set cache'
@@ -161,9 +161,9 @@ class AudioHandler(object):
                 ['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), file_])
             p.wait()
 
-    def aplay(self, is_buffer=False, file_=BC.OUTPUT_NAME):
+    def aplay(self, file_=BC.OUTPUT_NAME, is_buffer=False):
         if is_buffer:
-            p = Popen(['aplay', '-'], stdin=file_)
+            p = Popen(['aplay', '-'], stdin=BytesIO(file_))
         else:
             p = Popen(['aplay', file_])
         p.wait()
