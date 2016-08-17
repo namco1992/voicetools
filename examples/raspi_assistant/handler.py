@@ -88,7 +88,7 @@ class ActionHandler(object):
 
     @staticmethod
     def _memo(date, bv, audio_handler):
-        audio_handler.play(bv.tts('请说出内容'))
+        audio_handler.aplay(bv.tts('请说出内容'))
         f = BytesIO()
         audio_handler.record(6, f)
         cache_handler = CacheHandler()
@@ -117,10 +117,10 @@ class ActionHandler(object):
         audio = cache_handler.zget(date, 0, -1)
         if audio:
             for item in audio:
-                audio_handler.play(audio)
+                audio_handler.aplay(audio)
             return '播放结束'
         else:
-            audio_handler.play('未找到记录')
+            audio_handler.aplay('未找到记录')
             return None
 
     @staticmethod

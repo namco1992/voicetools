@@ -24,7 +24,7 @@ conn_pool = redis.ConnectionPool(host=RC.HOST_ADDR, port=RC.PORT, db=RC.DB)
 
 def convert_to_wav(file_):
     p = Popen(['ffmpeg', '-y', '-i', '-', '-f', 'wav', 'output.wav'], stdin=file_ , stdout=None, stderr=None)
-    p.communicate()
+    p.wait()
 
 
 def init_logging_handler():
@@ -149,12 +149,10 @@ class AudioHandler(object):
         wf.close()
 
     def arecord(self, record_seconds):
-        print 'arecord'
         p = Popen(['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), 'record.wav'])
         p.wait()
 
     def aplay(self, file_):
-        print 'aplay'
         p = Popen(['aplay', file_])
         p.wait()
 
