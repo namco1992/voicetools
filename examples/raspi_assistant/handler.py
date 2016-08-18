@@ -39,9 +39,8 @@ class BaseHandler(object):
     def __repr__(self):
         return '<BaseHandler>'
 
-    def receive(self, sec=6):
+    def receive(self, sec=4):
         self.feedback(generate_response())
-        print 'arecord begin'
         self.audio_handler.arecord(sec)
         return self.bv.asr('record.wav')
 
@@ -52,7 +51,7 @@ class BaseHandler(object):
 
     def execute(self, func_name, result):
         func = getattr(ActionHandler, func_name)
-        return func(self.bv, self.audio_handler, result)
+        return func(self, result)
 
     @cache
     def feedback(self, content=None):
@@ -75,7 +74,7 @@ class ActionHandler(object):
     """docstring for ActionHandler"""
 
     @staticmethod
-    def default(bv, audio_handler, result):
+    def default(base_handler, result):
         print 'turing run'
         robot = TuringRobot(BC.TURING_KEY)
         try:
@@ -87,54 +86,51 @@ class ActionHandler(object):
             return content
 
     @staticmethod
-    def _memo(date, bv, audio_handler):
-        audio_handler.aplay(bv.tts('请说出内容'))
-        f = BytesIO()
-        audio_handler.record(6, f)
+    def _memo(date, base_handler):
+        base_handler.feedback('请说出记录内容')
+        base_handler.audio_handler.arecord(6)
         cache_handler = CacheHandler()
         cache_handler.zset(date, f.read(), timestamp(), 86400*3)
         return '完成记录'
 
     @staticmethod
-    def memo_today(bv, audio_handler, result):
+    def memo_today(base_handler, result):
         return ActionHandler._memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
-            bv=bv,
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
-    def memo_tomo(bv, audio_handler, result):
+    def memo_tomo(base_handler, result):
         return ActionHandler._memo(
             date=(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'),
-            bv=bv,
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
-    def play_memo(date, audio_handler):
+    def play_memo(date, base_handler):
         cache_handler = CacheHandler()
         audio = cache_handler.zget(date, 0, -1)
         if audio:
             for item in audio:
-                audio_handler.aplay(audio)
+                base_handler.audio_handler.aplay(audio)
             return '播放结束'
         else:
-            audio_handler.aplay('未找到记录')
+            base_handler.feedback('未找到记录')
             return None
 
     @staticmethod
-    def play_memo_tomo(bv, audio_handler, result):
+    def play_memo_tomo(base_handler, result):
         return ActionHandler.play_memo(
             date=(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'),
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
-    def play_memo_today(bv, audio_handler, result):
+    def play_memo_today(base_handler, result):
         return ActionHandler.play_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
@@ -144,7 +140,7 @@ class ActionHandler(object):
         return '删除成功'
 
     @staticmethod
-    def del_last_memo(bv, audio_handler, result):
+    def del_last_memo(base_handler, result):
         return ActionHandler.del_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
             start=-1,
@@ -152,7 +148,7 @@ class ActionHandler(object):
             )
 
     @staticmethod
-    def del_first_memo(bv, audio_handler, result):
+    def del_first_memo(base_handler, result):
         return ActionHandler.del_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
             start=0,
@@ -160,7 +156,7 @@ class ActionHandler(object):
             )
 
     @staticmethod
-    def del_all_memo(bv, audio_handler, result):
+    def del_all_memo(base_handler, result):
         return ActionHandler.del_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
             start=0,
@@ -168,11 +164,11 @@ class ActionHandler(object):
             )
 
     @staticmethod
-    def weather_tomo(bv, audio_handler, result):
+    def weather_tomo(base_handler, result):
         return ActionHandler.query_weather('tomo')
 
     @staticmethod
-    def weather_today(bv, audio_handler, result):
+    def weather_today(base_handler, result):
         return ActionHandler.query_weather('today')
 
     @staticmethod

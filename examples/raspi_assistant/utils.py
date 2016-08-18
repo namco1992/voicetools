@@ -6,7 +6,7 @@ import random
 import base64
 from functools import wraps
 from hashlib import md5
-from subprocess import Popen, STDOUT
+from subprocess import Popen, PIPE
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
@@ -148,18 +148,29 @@ class AudioHandler(object):
         wf.writeframes(''.join(frames))
         wf.close()
 
-    def arecord(self, record_seconds):
-        p = Popen(['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), 'record.wav'])
-        p.wait()
+    def arecord(self, record_seconds, is_temp=False, file_=BC.INPUT_NAME):
+        if is_temp:
+            p = Popen(
+                ['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), '-'],
+                stdout=PIPE,
+                stderr=PIPE)
+            stdin, _ = p.communicate()
+            return stdin
+        else:
+            p = Popen(
+                ['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), file_])
+            p.wait()
 
-    def aplay(self, file_):
-        p = Popen(['aplay', file_])
+    def aplay(self, is_temp=False, file_=BC.OUTPUT_NAME):
+        if is_temp:
+            p = Popen(['aplay', '-'], stdin=file_)
+        else:
+            p = Popen(['aplay', file_])
         p.wait()
 
     def play(self, file_):
         wf = wave.open(file_, 'rb')
         p = pyaudio.PyAudio()
-        print wf.getparams()
         stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                         channels=wf.getnchannels(),
                         rate=wf.getframerate(),
@@ -206,7 +217,9 @@ class CacheHandler(object):
     def expire(self, name, ttl):
         return self.client.expire(name, ttl)
 
-    def zset(self, name, key, score, ttl=None):
+    def zset(self, name, key, score, ttl=None, is_audio=True):
+        if is_audio:
+            key = base64.b64encode(key)
         if ttl:
             pipeline = self.client.pipeline()
             pipeline.zadd(name, score, key)
@@ -215,8 +228,12 @@ class CacheHandler(object):
         else:
             self.client.zadd(name, score, key)
 
-    def zget(self, name, start, end):
-        return self.client.zrange(name, start, end)
+    def zget(self, name, start, end, is_audio=True):
+        ret = self.client.zrange(name, start, end)
+        if is_audio:
+            return base64.b64decode(ret)
+        else:
+            return ret
 
     def zdel(self, name, start, end):
         # zremrangebyrank
