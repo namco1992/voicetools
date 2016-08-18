@@ -18,7 +18,7 @@ logger = logging.getLogger()
 FUNC_MAP = {
     Keyword([u'备忘录', ]).value: 'memo_today',
     Keyword([u'提醒', ]).value: 'memo_today',
-    Keyword([u'备忘录', u'播放']).value: 'memo_tomo',
+    Keyword([u'备忘录', u'播放']).value: 'play_memo_today',
     Keyword([u'明天', u'天气']).value: 'weather_tomo',
     Keyword([u'今天', u'天气']).value: 'weather_today'
 }
@@ -113,7 +113,7 @@ class ActionHandler(object):
         audio = cache_handler.zget(date, 0, -1)
         if audio:
             for item in audio:
-                base_handler.audio_handler.aplay(audio, is_buffer=True)
+                base_handler.audio_handler.aplay(item, is_buffer=True)
             return '播放结束'
         else:
             base_handler.feedback('未找到记录')

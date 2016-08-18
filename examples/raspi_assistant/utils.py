@@ -235,7 +235,7 @@ class CacheHandler(object):
     def zget(self, name, start, end, is_audio=True):
         ret = self.client.zrange(name, start, end)
         if is_audio:
-            return base64.b64decode(ret)
+            return [base64.b64decode(x) for x in ret]
         else:
             return ret
 
