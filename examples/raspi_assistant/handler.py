@@ -64,7 +64,8 @@ class BaseHandler(object):
 
     def process(self, results):
         seg_list = list(jieba.cut(results[0], cut_all=True))
-        command = Keyword(list(set(seg_list) & BC.KEYWORDS))
+        # command = Keyword(list(set(seg_list) & BC.KEYWORDS))
+        command = Keyword(list(set((x.encode('utf-8') for x in seg_list)) & BC.KEYWORDS))
         return FUNC_MAP.get(command.value, 'default'), results[0]
 
     def execute(self, func_name, result):

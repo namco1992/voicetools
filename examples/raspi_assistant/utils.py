@@ -194,6 +194,8 @@ class Keyword(object):
         self.keywords = list_
         self.value = '/'.join(list_)
 
+    def __repr__(self):
+        return self.value
 
 class CacheHandler(object):
     """docstring for CacheHandler"""
