@@ -148,21 +148,21 @@ class AudioHandler(object):
         wf.writeframes(''.join(frames))
         wf.close()
 
-    def arecord(self, record_seconds, is_temp=False, file_=BC.INPUT_NAME):
-        if is_temp:
+    def arecord(self, record_seconds, is_buffer=False, file_=BC.INPUT_NAME):
+        if is_buffer:
             p = Popen(
                 ['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), '-'],
                 stdout=PIPE,
                 stderr=PIPE)
-            stdin, _ = p.communicate()
-            return stdin
+            stdout, _ = p.communicate()
+            return stdout
         else:
             p = Popen(
                 ['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), file_])
             p.wait()
 
-    def aplay(self, is_temp=False, file_=BC.OUTPUT_NAME):
-        if is_temp:
+    def aplay(self, is_buffer=False, file_=BC.OUTPUT_NAME):
+        if is_buffer:
             p = Popen(['aplay', '-'], stdin=file_)
         else:
             p = Popen(['aplay', file_])
