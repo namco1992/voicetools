@@ -8,7 +8,7 @@ from functools import wraps
 from hashlib import md5
 from subprocess import Popen, PIPE
 from io import BytesIO
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryFile
 
 import redis
 import pyaudio
@@ -161,9 +161,13 @@ class AudioHandler(object):
                 ['arecord', '-r', '16000', '-D', 'plughw:1,0', '-f', 'S16_LE', '-d', str(record_seconds), file_])
             p.wait()
 
-    def aplay(self, is_buffer=False, file_=BC.OUTPUT_NAME):
+    def aplay(self, file_=BC.OUTPUT_NAME, is_buffer=False):
         if is_buffer:
-            p = Popen(['aplay', '-'], stdin=file_)
+            temp = TemporaryFile()
+            temp.write(file_)
+            temp.seek(0)
+            p = Popen(['aplay', '-'], stdin=temp)
+            temp.close()
         else:
             p = Popen(['aplay', file_])
         p.wait()
