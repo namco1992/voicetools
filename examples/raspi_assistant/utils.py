@@ -62,7 +62,7 @@ def cache(func):
         if cache:
             print 'cached'
             audio_handler = AudioHandler()
-            audio_handler.aplay(base64.b64decode(cache))
+            audio_handler.aplay(base64.b64decode(cache), is_buffer=True)
             # return cache
         else:
             print 'set cache'
