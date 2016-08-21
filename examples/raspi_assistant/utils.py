@@ -8,7 +8,7 @@ from functools import wraps
 from hashlib import md5
 from subprocess import Popen, PIPE
 from io import BytesIO
-from tempfile import NamedTemporaryFile, TemporaryFile
+from tempfile import TemporaryFile
 
 import redis
 import pyaudio
@@ -127,15 +127,11 @@ class AudioHandler(object):
                         input_device_index=0,
                         frames_per_buffer=self.CHUNK)
 
-        print("* recording")
-
         frames = []
 
         for i in range(0, int(self.RATE / self.CHUNK * record_seconds)):
             data = stream.read(self.CHUNK)
             frames.append(data)
-
-        print("* done recording")
 
         stream.stop_stream()
         stream.close()
@@ -235,7 +231,7 @@ class CacheHandler(object):
     def zget(self, name, start, end, is_audio=True):
         ret = self.client.zrange(name, start, end)
         if is_audio:
-            return base64.b64decode(ret)
+            return [base64.b64decode(x) for x in ret]
         else:
             return ret
 
