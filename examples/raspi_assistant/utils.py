@@ -7,7 +7,6 @@ import base64
 from functools import wraps
 from hashlib import md5
 from subprocess import Popen, PIPE
-from io import BytesIO
 from tempfile import TemporaryFile
 
 import redis

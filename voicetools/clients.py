@@ -2,7 +2,7 @@
 import json
 import requests
 from .constants import BaiduUrl, TuringUrl, ErrNo
-from .exceptions import RespError, APIError
+from .exceptions import RespError, APIError, VerifyError
 from .utils import concat_url
 
 
@@ -61,7 +61,11 @@ class BaiduClient(BaseClient):
             resp = self.get_request(BaiduUrl.token_url, params)
         except Exception, e:
             raise e
-        return resp.json()
+        else:
+            r = resp.json()
+            if 'error' in r:
+                raise VerifyError(r.get('error_description', 'unknown error'))
+            return r
 
     def tts(self, params):
         try:

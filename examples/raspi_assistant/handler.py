@@ -1,7 +1,6 @@
 # coding: utf-8
 import logging
 import traceback
-from io import BytesIO
 import datetime
 from tempfile import NamedTemporaryFile
 
@@ -16,11 +15,24 @@ from .utils import (
 logger = logging.getLogger()
 
 FUNC_MAP = {
-    Keyword([u'备忘录', ]).value: 'memo_today',
-    Keyword([u'提醒', ]).value: 'memo_today',
-    Keyword([u'备忘录', u'播放']).value: 'play_memo_today',
-    Keyword([u'明天', u'天气']).value: 'weather_tomo',
-    Keyword([u'今天', u'天气']).value: 'weather_today'
+    Keyword(['备忘录', ]).value: 'memo_today',
+    Keyword(['提醒', ]).value: 'memo_today',
+    Keyword(['备忘录', '今天']).value: 'memo_today',
+    Keyword(['提醒', '今天']).value: 'memo_today',
+    Keyword(['备忘录', '明天']).value: 'memo_tomo',
+    Keyword(['提醒', '明天']).value: 'memo_tomo',
+    Keyword(['备忘录', '播放']).value: 'play_memo_today',
+    Keyword(['提醒', '播放']).value: 'play_memo_today',
+    Keyword(['备忘录', '播放', '明天']).value: 'play_memo_tomo',
+    Keyword(['提醒', '播放', '明天']).value: 'play_memo_tomo',
+    Keyword(['备忘录', '删除']).value: 'del_all_memo',
+    Keyword(['提醒', '删除']).value: 'del_all_memo',
+    Keyword(['备忘录', '删除', '最后']).value: 'del_last_memo',
+    Keyword(['提醒', '删除', '最后']).value: 'del_last_memo',
+    Keyword(['备忘录', '删除', '第一条']).value: 'del_first_memo',
+    Keyword(['提醒', '删除', '第一条']).value: 'del_first_memo',
+    Keyword(['明天', '天气']).value: 'weather_tomo',
+    Keyword(['今天', '天气']).value: 'weather_today'
 }
 
 
@@ -28,8 +40,12 @@ class BaseHandler(object):
 
     def __init__(self, baidu_token=None):
         if not baidu_token:
-            token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
-            self.token = token['access_token']
+            try:
+                token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
+                self.token = token['access_token']
+            except Exception, e:
+                logger.warn('======Get baidu voice token failed, %s', traceback.format_exc())
+                raise e
         else:
             self.token = baidu_token
         self.bv = BaiduVoice(self.token)
@@ -41,7 +57,10 @@ class BaseHandler(object):
     def receive(self, sec=4):
         self.feedback(generate_response())
         self.audio_handler.arecord(sec)
-        return self.bv.asr('record.wav')
+        try:
+            return self.bv.asr('record.wav')
+        except Exception, e:
+            logger.warn('======Baidu ASR failed, %s', traceback.format_exc())
 
     def process(self, results):
         seg_list = list(jieba.cut(results[0], cut_all=True))
@@ -55,18 +74,25 @@ class BaseHandler(object):
     @cache
     def feedback(self, content=None):
         if content:
-            data = NamedTemporaryFile()
-            data.write(self.bv.tts(content))
-            data.seek(0)
-            convert_to_wav(data)
-            data.close()
-            self.audio_handler.aplay()
+            try:
+                data = NamedTemporaryFile()
+                data.write(self.bv.tts(content))
+                data.seek(0)
+                convert_to_wav(data)
+                data.close()
+            except Exception, e:
+                logger.warn('======Baidu TTS failed, %s', traceback.format_exc())
+            else:
+                self.audio_handler.aplay()
 
     def worker(self):
-        results = self.receive()
-        func, result = self.process(results)
-        content = self.execute(func, result)
-        self.feedback(content)
+        try:
+            results = self.receive()
+            func, result = self.process(results)
+            content = self.execute(func, result)
+            self.feedback(content)
+        except Exception, e:
+            self.feedback('出现系统异常，请检查日志')
 
 
 class ActionHandler(object):
