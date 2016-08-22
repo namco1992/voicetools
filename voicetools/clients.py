@@ -2,7 +2,7 @@
 import json
 import requests
 from .constants import BaiduUrl, TuringUrl, ErrNo
-from .exceptions import RespError, APIError
+from .exceptions import RespError, APIError, VerifyError
 from .utils import concat_url
 
 
@@ -11,7 +11,7 @@ class BaseClient(object):
 
     def __init__(self, **kwargs):
         self.connect_timeout = kwargs.get('connect_timeout', 5)
-        self.request_timeout = kwargs.get('request_timeout', 20)
+        self.request_timeout = kwargs.get('request_timeout', 30)
 
     def post_request(self, url, params, headers=None, connect_timeout=None, request_timeout=None):
         connect_timeout = connect_timeout or self.connect_timeout
@@ -61,7 +61,11 @@ class BaiduClient(BaseClient):
             resp = self.get_request(BaiduUrl.token_url, params)
         except Exception, e:
             raise e
-        return resp.json()
+        else:
+            r = resp.json()
+            if 'error' in r:
+                raise VerifyError(r.get('error_description', 'unknown error'))
+            return r
 
     def tts(self, params):
         try:
@@ -81,7 +85,7 @@ class BaiduClient(BaseClient):
     def asr(self, speech, params):
         headers = {
             'Content-Type': 'audio/%s;rate=%s' % (params.pop('format'), params.pop('rate')),
-            'Content-length': params.pop('len')
+            'Content-length': str(params.pop('len'))
         }
         url = concat_url(BaiduUrl.asr_url, params)
         try:

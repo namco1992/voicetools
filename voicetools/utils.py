@@ -2,7 +2,6 @@
 import uuid
 import wave
 import urllib
-from cStringIO import StringIO
 
 
 def get_mac_address():
@@ -26,51 +25,6 @@ def get_audio_info(file_):
 
 def concat_url(url, params):
     return url + '?' + urllib.urlencode(params)
-
-# def text_to_audio(text):  # tts
-#     # get audio from redis
-#     # if can't find in redis.
-#     logger.debug('-----text to audio: ', text)
-#     params = {
-#         'tex': text,
-#         'lan': 'zh',
-#         'cuid': cuid,
-#         'ctp': 1,
-#         'tok': access_token,
-#         'spd': 4,
-#         'per': 0
-#     }
-#     rclient = get_rclient(text2audio_url)
-#     ret, content = rclient.handle_text2audio(params)
-#     if ret != RetCode.SUCCESS:
-#         return ret
-#     # TODO: save into redis
-#     with open(os.path.join(Path.VOICE_DIR, receive_audio_file), 'w') as f:
-#         f.write(content)
-#     return RetCode.SUCCESS
-
-
-# def audio_to_text():  # asr
-#     url = audio2text_url % (cuid, access_token)
-#     try:
-#         f = wave.open(os.path.join(Path.VOICE_DIR, send_audio_file), 'rb')
-#         params = f.getparams()
-#         logger.debug('wave file params: %s', params)
-#         nchannels, sampwidth, framerate, nframes = params[:4]
-#         wave_data = f.readframes(nframes)
-#         f.close()
-#     except Exception, e:
-#         logger.debug(traceback.format_exc())
-#         return RetCode.SERVER_ERR, 'Sorry,something wrong,please try again.'
-#     params = {
-#         'voice_content': wave_data,
-#         'length': nframes
-#     }
-#     rclient = get_rclient(url)
-#     ret, content = rclient.handle_audio2text(params)
-#     if ret != RetCode.SUCCESS:
-#         return ret, 'Sorry,something wrong,please try again.'
-#     return ret, content[0]
 
 
 if __name__ == '__main__':

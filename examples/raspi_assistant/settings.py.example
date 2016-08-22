@@ -10,7 +10,7 @@ from voicetools import (
 
 class RedisConfig(object):
     """docstring for RedisConfig"""
-    HOST_ADDR = '192.168.1.114'
+    HOST_ADDR = 'localhost'
     PORT = 6379
     DB = 0
     SOCKET_TIMEOUT = 1
@@ -18,18 +18,20 @@ class RedisConfig(object):
 
 class BasicConfig(object):
     LOCATION = '成都'
-    TURING_KEY = 'YOUR_KEY'
-    VOICE_API_KEY = 'YOUR_KEY'
-    VOICE_SECRET = 'YOUR_SECRET'
+    TURING_KEY = 'YOUR_TURING_KEY'
+    VOICE_API_KEY = 'YOUR_API_KEY'
+    VOICE_SECRET = 'YOUR_API_SECRET'
     HAPPINESS_THRESHOLD = 0.6
-    KEYWORDS = {u'提醒', u'备忘录', u'播放', u'今天', u'明天', u'天气'}
+    KEYWORDS = {'提醒', '备忘录', '播放', '今天', '明天', '天气'}
+    OUTPUT_NAME = 'output.wav'
+    INPUT_NAME = 'record.wav'
     POSITIVE_ANSWER = {
-        1: u'等候多时',
-        2: u'你回来了',
-        3: u'你需要什么',
-        4: u'今天工作辛苦吗',
-        5: u'你今天又变帅了',
-        6: u'需要我帮你做点什么？'
+        1: '等候多时',
+        2: '你回来了',
+        3: '你需要什么',
+        4: '今天工作辛苦吗',
+        5: '你今天又变帅了',
+        6: '需要我帮你做点什么？'
     }
     # The negative_answer won't negative your command, just the emotion expression
     NEGATIVE_ANSWER = {
@@ -53,7 +55,7 @@ class LogConfig(object):
 
 
 class BaiduAPIConfig(object):
-    API_KEY = 'YOUR_KEY'
+    API_KEY = 'YOUR_BAIDU_API_KEY'
     WEATHER_URL = 'http://apis.baidu.com/heweather/weather/free'
     TODAY_WEATHER_TEXT = \
     u'当前天气{cond}，体感温度{fl}摄氏度，空气湿度百分之{hum}。今日温度为{min}到{max}摄氏度，{txt_d}转{txt_n}，降水概率百分之{pop}，空气质量{qlty}。'
@@ -66,5 +68,5 @@ class ErrNo(object):
     ExceptionMap = {
         3001: QuotaError,
         3002: VerifyError,
-        3303: APIError,
+        3003: APIError,
     }

@@ -1,8 +1,8 @@
 # coding: utf-8
 import logging
 import traceback
-from io import BytesIO
 import datetime
+from tempfile import NamedTemporaryFile
 
 import jieba
 from voicetools import BaiduVoice, TuringRobot
@@ -10,63 +10,98 @@ from voicetools import BaiduVoice, TuringRobot
 from .settings import BasicConfig as BC, BaiduAPIConfig as BAC
 from .utils import (
     AudioHandler, Keyword, cache, CacheHandler, timestamp, BaiduAPIClient,
-    generate_response)
+    generate_response, convert_to_wav)
 
 logger = logging.getLogger()
 
 FUNC_MAP = {
-    Keyword([u'备忘录', ]).value: 'memo_today',
-    Keyword([u'提醒', ]).value: 'memo_today',
-    Keyword([u'备忘录', u'播放']).value: 'memo_tomo',
-    Keyword([u'明天', u'天气']).value: 'weather_tomo',
-    Keyword([u'今天', u'天气']).value: 'weather_today'
+    Keyword(['备忘录', ]).value: 'memo_today',
+    Keyword(['提醒', ]).value: 'memo_today',
+    Keyword(['备忘录', '今天']).value: 'memo_today',
+    Keyword(['提醒', '今天']).value: 'memo_today',
+    Keyword(['备忘录', '明天']).value: 'memo_tomo',
+    Keyword(['提醒', '明天']).value: 'memo_tomo',
+    Keyword(['备忘录', '播放']).value: 'play_memo_today',
+    Keyword(['提醒', '播放']).value: 'play_memo_today',
+    Keyword(['备忘录', '播放', '明天']).value: 'play_memo_tomo',
+    Keyword(['提醒', '播放', '明天']).value: 'play_memo_tomo',
+    Keyword(['备忘录', '删除']).value: 'del_all_memo',
+    Keyword(['提醒', '删除']).value: 'del_all_memo',
+    Keyword(['备忘录', '删除', '最后']).value: 'del_last_memo',
+    Keyword(['提醒', '删除', '最后']).value: 'del_last_memo',
+    Keyword(['备忘录', '删除', '第一条']).value: 'del_first_memo',
+    Keyword(['提醒', '删除', '第一条']).value: 'del_first_memo',
+    Keyword(['明天', '天气']).value: 'weather_tomo',
+    Keyword(['今天', '天气']).value: 'weather_today'
 }
 
 
 class BaseHandler(object):
 
-    def __init__(self):
-        token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
-        self.token = token['access_token']
+    def __init__(self, baidu_token=None):
+        if not baidu_token:
+            try:
+                token = BaiduVoice.get_baidu_token(BC.VOICE_API_KEY, BC.VOICE_SECRET)
+                self.token = token['access_token']
+            except Exception, e:
+                logger.warn('======Get baidu voice token failed, %s', traceback.format_exc())
+                raise e
+        else:
+            self.token = baidu_token
         self.bv = BaiduVoice(self.token)
         self.audio_handler = AudioHandler()
 
-    def receive(self, sec=6):
+    def __repr__(self):
+        return '<BaseHandler>'
+
+    def receive(self, sec=4):
         self.feedback(generate_response())
-        f = BytesIO()
-        self.audio_handler.record(sec, f)
-        return self.bv.asr(f.read())
+        self.audio_handler.arecord(sec)
+        try:
+            return self.bv.asr('record.wav')
+        except Exception, e:
+            logger.warn('======Baidu ASR failed, %s', traceback.format_exc())
 
     def process(self, results):
         seg_list = list(jieba.cut(results[0], cut_all=True))
-        command = Keyword(list(set(seg_list) & BC.KEYWORDS))
+        # command = Keyword(list(set(seg_list) & BC.KEYWORDS))
+        command = Keyword(list(set((x.encode('utf-8') for x in seg_list)) & BC.KEYWORDS))
         return FUNC_MAP.get(command.value, 'default'), results[0]
 
     def execute(self, func_name, result):
         func = getattr(ActionHandler, func_name)
-        return func(self.bv, self.audio_handler, result)
+        return func(self, result)
 
     @cache
     def feedback(self, content=None):
         if content:
-            audio_mp3 = BytesIO(self.bv.tts(content))
-            self.audio_handler.play_mp3(audio_mp3)
-            return audio_mp3
-        else:
-            return None
+            try:
+                data = NamedTemporaryFile()
+                data.write(self.bv.tts(content))
+                data.seek(0)
+                convert_to_wav(data)
+                data.close()
+            except Exception, e:
+                logger.warn('======Baidu TTS failed, %s', traceback.format_exc())
+            else:
+                self.audio_handler.aplay()
 
     def worker(self):
-        results = self.receive()
-        func, result = self.process(results)
-        content = self.execute(func, result)
-        self.feedback(content)
+        try:
+            results = self.receive()
+            func, result = self.process(results)
+            content = self.execute(func, result)
+            self.feedback(content)
+        except Exception, e:
+            self.feedback('出现系统异常，请检查日志')
 
 
 class ActionHandler(object):
     """docstring for ActionHandler"""
 
     @staticmethod
-    def default(bv, audio_handler, result):
+    def default(base_handler, result):
+        print 'turing run'
         robot = TuringRobot(BC.TURING_KEY)
         try:
             content = robot.ask_turing(result)
@@ -77,54 +112,51 @@ class ActionHandler(object):
             return content
 
     @staticmethod
-    def _memo(date, bv, audio_handler):
-        audio_handler.play(bv.tts('请说出内容'))
-        f = BytesIO()
-        audio_handler.record(6, f)
+    def _memo(date, base_handler):
+        base_handler.feedback('请说出记录内容')
+        audio = base_handler.audio_handler.arecord(6, is_buffer=True)
         cache_handler = CacheHandler()
-        cache_handler.zset(date, f.read(), timestamp(), 86400*3)
+        cache_handler.zset(date, audio, timestamp(), 86400*3)
         return '完成记录'
 
     @staticmethod
-    def memo_today(bv, audio_handler, result):
+    def memo_today(base_handler, result):
         return ActionHandler._memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
-            bv=bv,
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
-    def memo_tomo(bv, audio_handler, result):
+    def memo_tomo(base_handler, result):
         return ActionHandler._memo(
             date=(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'),
-            bv=bv,
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
-    def play_memo(date, audio_handler):
+    def play_memo(date, base_handler):
         cache_handler = CacheHandler()
         audio = cache_handler.zget(date, 0, -1)
         if audio:
             for item in audio:
-                audio_handler.play(audio)
+                base_handler.audio_handler.aplay(item, is_buffer=True)
             return '播放结束'
         else:
-            audio_handler.play('未找到记录')
+            base_handler.feedback('未找到记录')
             return None
 
     @staticmethod
-    def play_memo_tomo(bv, audio_handler, result):
+    def play_memo_tomo(base_handler, result):
         return ActionHandler.play_memo(
             date=(datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'),
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
-    def play_memo_today(bv, audio_handler, result):
+    def play_memo_today(base_handler, result):
         return ActionHandler.play_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
-            audio_handler=audio_handler
+            base_handler=base_handler
             )
 
     @staticmethod
@@ -134,7 +166,7 @@ class ActionHandler(object):
         return '删除成功'
 
     @staticmethod
-    def del_last_memo(bv, audio_handler, result):
+    def del_last_memo(base_handler, result):
         return ActionHandler.del_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
             start=-1,
@@ -142,7 +174,7 @@ class ActionHandler(object):
             )
 
     @staticmethod
-    def del_first_memo(bv, audio_handler, result):
+    def del_first_memo(base_handler, result):
         return ActionHandler.del_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
             start=0,
@@ -150,7 +182,7 @@ class ActionHandler(object):
             )
 
     @staticmethod
-    def del_all_memo(bv, audio_handler, result):
+    def del_all_memo(base_handler, result):
         return ActionHandler.del_memo(
             date=datetime.date.today().strftime('%Y-%m-%d'),
             start=0,
@@ -158,11 +190,11 @@ class ActionHandler(object):
             )
 
     @staticmethod
-    def weather_tomo(bv, audio_handler, result):
+    def weather_tomo(base_handler, result):
         return ActionHandler.query_weather('tomo')
 
     @staticmethod
-    def weather_today(bv, audio_handler, result):
+    def weather_today(base_handler, result):
         return ActionHandler.query_weather('today')
 
     @staticmethod

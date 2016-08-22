@@ -51,6 +51,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+*.log*
 local_settings.py
 
 # Flask stuff:
@@ -91,3 +92,6 @@ ENV/
 # audio files
 *.wav
 *.mp3
+
+# settings
+settings.py

@@ -5,7 +5,7 @@ import time
 
 import RPi.GPIO as GPIO
 
-HOME = os.path.dirname(os.path.abspath(__file__))
+HOME = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(HOME)
 
 from raspi_assistant.settings import GPIOConfig
