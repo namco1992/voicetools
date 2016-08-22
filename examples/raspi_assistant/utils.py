@@ -22,7 +22,8 @@ conn_pool = redis.ConnectionPool(host=RC.HOST_ADDR, port=RC.PORT, db=RC.DB)
 
 
 def convert_to_wav(file_):
-    p = Popen(['ffmpeg', '-y', '-i', '-', '-f', 'wav', 'output.wav'], stdin=file_ , stdout=None, stderr=None)
+    """convert mp3 to wav"""
+    p = Popen(['ffmpeg', '-y', '-i', '-', '-f', 'wav', BC.OUTPUT_NAME], stdin=file_ , stdout=None, stderr=None)
     p.wait()
 
 
@@ -37,6 +38,7 @@ def init_logging_handler():
 
 
 def generate_response():
+    """Generate emotional response based on the HAPPINESS_THRESHOLD."""
     if random.random() <= BC.HAPPINESS_THRESHOLD:
         return BC.POSITIVE_ANSWER[random.randint(1, len(BC.POSITIVE_ANSWER))]
     else:
@@ -52,19 +54,17 @@ def timestamp():
 
 
 def cache(func):
+    """Wrapper for cache the audio"""
     @wraps(func)
     def _(*args, **kwargs):
         cache_handler = CacheHandler()
         id_ = unique_id(func, *args, **kwargs)
-        print id_
         cache = cache_handler.get(id_)
         if cache:
-            print 'cached'
             audio_handler = AudioHandler()
             audio_handler.aplay(base64.b64decode(cache), is_buffer=True)
             # return cache
         else:
-            print 'set cache'
             func(*args, **kwargs)
             with open('output.wav', 'rb') as f:
                 encoded_audio = base64.b64encode(f.read())
@@ -74,7 +74,7 @@ def cache(func):
 
 
 class BaiduAPIClient(BaseClient):
-    """docstring for BaiduAPIClient"""
+    """Client for handling the process of Baidu APIStore requests."""
     def __init__(self, **kwargs):
         super(BaiduAPIClient, self).__init__(**kwargs)
         self.apikey = BAC.API_KEY
@@ -109,7 +109,7 @@ class BaiduAPIClient(BaseClient):
 
 
 class AudioHandler(object):
-    """docstring for AudioHandler"""
+    """AudioHandler for processing audio, including recording and playing."""
     def __init__(self, chunk=1024, format_=pyaudio.paInt16, channels=1, rate=16000):
         self.CHUNK = chunk
         self.FORMAT = format_
@@ -188,7 +188,7 @@ class AudioHandler(object):
 
 
 class Keyword(object):
-    """docstring for Keyword"""
+    """Object for """
     def __init__(self, list_):
         list_.sort()
         self.keywords = list_
@@ -197,8 +197,9 @@ class Keyword(object):
     def __repr__(self):
         return self.value
 
+
 class CacheHandler(object):
-    """docstring for CacheHandler"""
+    """CacheHandler for manipulating redis."""
     def __init__(self):
         self.client = redis.StrictRedis(
             connection_pool=conn_pool, socket_timeout=RC.SOCKET_TIMEOUT)
@@ -219,6 +220,7 @@ class CacheHandler(object):
         return self.client.expire(name, ttl)
 
     def zset(self, name, key, score, ttl=None, is_audio=True):
+        """zset for audio. if is_audio=True, """
         if is_audio:
             key = base64.b64encode(key)
         if ttl:
