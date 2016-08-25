@@ -22,14 +22,16 @@ class BasicConfig(object):
     VOICE_API_KEY = 'uoA9RW2uB5pw3oQerSBewl8O'
     VOICE_SECRET = '7319e9ff880c807a40895b4962a9de8c'
     HAPPINESS_THRESHOLD = 0.6
-    KEYWORDS = {u'提醒', u'备忘录', u'播放', u'今天', u'明天', u'天气'}
+    KEYWORDS = {'提醒', '备忘录', '播放', '今天', '明天', '天气', '删除', '最后', '第一条'}
+    INPUT_NAME = 'record.wav'
+    OUTPUT_NAME = 'output.wav'
     POSITIVE_ANSWER = {
-        1: u'等候多时',
-        2: u'你回来了',
-        3: u'你需要什么',
-        4: u'今天工作辛苦吗',
-        5: u'你今天又变帅了',
-        6: u'需要我帮你做点什么？'
+        1: '等候多时',
+        2: '你回来了',
+        3: '你需要什么',
+        4: '今天工作辛苦吗',
+        5: '你今天又变帅了',
+        6: '需要我帮你做点什么？'
     }
     # The negative_answer won't negative your command, just the emotion expression
     NEGATIVE_ANSWER = {
