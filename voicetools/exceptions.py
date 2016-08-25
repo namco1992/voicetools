@@ -11,12 +11,12 @@ class APIError(RequestException):
 
 
 class RecognitionError(APIError):
-    """Third-party API error occured."""
+    """The request for Baidu Voice ASR API failed."""
 
 
 class VerifyError(APIError):
-    """Third-party API error occured."""
+    """Auth failed."""
 
 
 class QuotaError(APIError):
-    """Third-party API error occured."""
+    """The number of requests exceeds the quota."""

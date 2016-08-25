@@ -1,6 +1,5 @@
 # coding: utf-8
 from .exceptions import RecognitionError, VerifyError, QuotaError, APIError
-# baidu API config
 
 
 class BaiduUrl(object):

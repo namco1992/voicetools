@@ -6,7 +6,11 @@ from .utils import get_mac_address, get_audio_info
 
 
 class Wolfram(object):
-    """docstring for Wolfram"""
+    """A client for request Wolfram.
+
+    Attributes:
+        key: The key string got from https://www.wolframalpha.com.
+    """
     def __init__(self, key):
         self.key = key
 
@@ -20,7 +24,6 @@ class Wolfram(object):
             else:
                 raise APIError('Wolfram API failed.')
             # to skip ascii character in case of error
-            # TODO: 取消换行，替换特殊字符
             texts = texts.encode('ascii', 'ignore')
             return texts
         else:
@@ -28,7 +31,11 @@ class Wolfram(object):
 
 
 class TuringRobot(object):
-    """docstring for TuringRobot"""
+    """A client for request Turing Robot.
+
+    Attributes:
+        key: The key string got from http://www.tuling123.com.
+    """
     def __init__(self, key):
         self.key = key
 
@@ -46,13 +53,36 @@ class TuringRobot(object):
 
 
 class BaiduVoice(object):
-    """docstring for BaiduVoice"""
+    """A client for request Turing Robot.
+
+    Attributes:
+        token: The token string got from https://openapi.baidu.com/oauth/2.0/token.
+        cuid: Unique identification of user, default is MAC address.
+    """
     def __init__(self, token):
         self.token = token
         self.cuid = get_mac_address()
 
     def asr(self, file_, format_='wav',
             cuid=None, ptc=1, lan='zh'):
+        """Constructs and sends an Automatic Speech Recognition request.
+
+        Args:
+            file_: the open file with methods write(), close(), tell(), seek()
+                   set through the __init__() method.
+            format_:(optional) the audio format, default is 'wav'
+            cuid:(optional) Unique identification of user, default is MAC address.
+            ptc:(optional) nbest results, the number of results.
+            lan:(optional) language, default is 'zh'.
+        Returns:
+            A list of recognition results.
+        Raises:
+            ValueError
+            RecognitionError
+            VerifyError
+            APIError
+            QuotaError
+        """
         if format_ != 'wav':
             raise ValueError('Unsupported audio format')
         params = {
@@ -71,6 +101,24 @@ class BaiduVoice(object):
 
     def tts(self, tex, lan='zh', ctp=1,
             cuid=None, spd=5, pit=5, vol=5, per=0):
+        """Constructs and sends an Text To Speech request.
+
+        Args:
+            tex: The text for conversion.
+            lan:(optional) language, default is 'zh'.
+            ctp:(optional) Client type, default is 1.
+            cuid:(optional) Unique identification of user, default is MAC address.
+            spd:(optional) speed, range 0-9, default is 5.
+            pit:(optional) pitch, range 0-9, default is 5.
+            vol:(optional) volume, range 0-9, default is 5.
+            per:(optional) voice of male or female, default is 0 for female voice.
+        Returns:
+            A binary string of MP3 format audio.
+        Raises:
+            ValueError
+            VerifyError
+            APIError
+        """
         params = {
             'tex': tex,
             'lan': lan,
@@ -86,6 +134,11 @@ class BaiduVoice(object):
 
     @staticmethod
     def get_baidu_token(api_key, secret_key):
+        """Get Baidu Voice Service token by api key and secret.
+
+        Functions of other args of response are not confirmed, so the whole
+        response dict will be returned, you can access the token by ret['access_token'].
+        """
         params = {
             'grant_type': 'client_credentials',
             'client_id': api_key,
