@@ -3,6 +3,11 @@
 以百度语音 API 为基础的语音识别和语音合成的基础包，同时集成了 wolfram API 和图灵机器人 API。附带树莓派语音助手示例代码。
 
 ## 用法
+### 安装
+```shell
+pip install voicetools
+```
+
 ### 语音识别及语音合成
 ```python
 from voicetools import BaiduVoice
@@ -10,9 +15,9 @@ from voicetools import BaiduVoice
 token = BaiduVoice.get_baidu_token('YOUR_VOICE_API_KEY', 'YOUR_VOICE_SECRET')
 bv = BaiduVoice(token)
 # 语音识别
-results = bv.asr('path/to/your/audio/file')  # 返回识别结果列表
+results = bv.asr('path/to/your/audio/file')  # 返回识别结果列表，可选参数见百度语音文档
 # 语音合成
-audio = bv.tts('你好')  # 返回 MP3 格式二进制数据
+audio = bv.tts('你好')  # 返回 MP3 格式二进制数据，可选参数见百度语音文档
 ```
 
 ### wolfram API
