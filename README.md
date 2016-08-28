@@ -4,7 +4,7 @@
 
 ## 用法
 ### 语音识别及语音合成
-```
+```python
 from voicetools import BaiduVoice
 # api key 及 secret key 请在百度语音官方网站注册获取
 token = BaiduVoice.get_baidu_token('YOUR_VOICE_API_KEY', 'YOUR_VOICE_SECRET')
