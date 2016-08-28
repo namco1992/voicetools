@@ -3,7 +3,7 @@
 以百度语音 API 为基础的语音识别和语音合成的基础包，附带树莓派语音助手示例代码。
 
 ## 用法
-```
+```python
 from voicetools import BaiduVoice
 # api key 及 secret key 请在百度语音官方网站注册获取
 token = BaiduVoice.get_baidu_token('YOUR_VOICE_API_KEY', 'YOUR_VOICE_SECRET')
