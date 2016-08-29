@@ -19,7 +19,6 @@ setup(name=NAME,
       classifiers=(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'Natural Language :: Chinese',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
