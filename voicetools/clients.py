@@ -52,7 +52,7 @@ class BaseClient(object):
 
 
 class BaiduClient(BaseClient):
-    """docstring for BaiduClient"""
+    """Client for handling the process of Baidu Voice requests."""
     def __init__(self, **kwargs):
         super(BaiduClient, self).__init__(**kwargs)
 
@@ -111,7 +111,7 @@ baiduclient = BaiduClient()
 
 
 class TuringClient(BaseClient):
-    """docstring for TuringClient"""
+    """Client for handling the process of Turing requests."""
     def __init__(self, **kwargs):
         super(TuringClient, self).__init__(**kwargs)
 

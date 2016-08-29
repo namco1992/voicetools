@@ -17,14 +17,16 @@ class RedisConfig(object):
 
 
 class BasicConfig(object):
+    """Basic config for the raspi_assistant."""
+    # Your location, only used in weather queries
     LOCATION = '成都'
     TURING_KEY = 'YOUR_TURING_KEY'
     VOICE_API_KEY = 'YOUR_API_KEY'
     VOICE_SECRET = 'YOUR_API_SECRET'
     HAPPINESS_THRESHOLD = 0.6
-    KEYWORDS = {'提醒', '备忘录', '播放', '今天', '明天', '天气'}
-    OUTPUT_NAME = 'output.wav'
+    KEYWORDS = {'提醒', '备忘录', '播放', '今天', '明天', '天气', '删除', '最后', '第一条'}
     INPUT_NAME = 'record.wav'
+    OUTPUT_NAME = 'output.wav'
     POSITIVE_ANSWER = {
         1: '等候多时',
         2: '你回来了',
@@ -55,6 +57,7 @@ class LogConfig(object):
 
 
 class BaiduAPIConfig(object):
+    """Baidu API Store is used for weather."""
     API_KEY = 'YOUR_BAIDU_API_KEY'
     WEATHER_URL = 'http://apis.baidu.com/heweather/weather/free'
     TODAY_WEATHER_TEXT = \

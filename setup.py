@@ -15,8 +15,19 @@ if not VERSION:
 setup(name=NAME,
       version=VERSION,
       description="All-in-one voice tools library",
-      long_description='just enjoy',
-      classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      long_description='All-in-one voice tools library',
+      classifiers=(
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Natural Language :: Chinese',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Multimedia :: Sound/Audio :: Sound Synthesis',
+        'Topic :: Multimedia :: Sound/Audio :: Speech'
+          ),  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='python baidu tts asr wolfram turing',
       author='namco1992',
       author_email='namco1992@gmail.com',
@@ -26,6 +37,6 @@ setup(name=NAME,
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          'requests',
+          'requests', 'wolframalpha'
       ],
 )
