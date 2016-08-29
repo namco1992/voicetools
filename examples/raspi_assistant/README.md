@@ -89,17 +89,17 @@ python assistant.py
 ```
 
 ## 如何扩展
-1. 在配置文件的`BasicConfig`类中的关键词列表`KEYWORDS`中加入你的关键词；
+1.在配置文件的`BasicConfig`类中的关键词列表`KEYWORDS`中加入你的关键词；
 ```python
 KEYWORDS = {'提醒', '备忘录', '播放', '今天', '明天', '天气', '删除', '最后', '第一条'}
 ```
-2. 在`handler.py`的`FUNCTION_MAP`映射中加入你的关键词与执行方法名称的映射。例如关键词“明天”和“天气”对应的执行方法名称是“weather_today”:
+2.在`handler.py`的`FUNCTION_MAP`映射中加入你的关键词与执行方法名称的映射。例如关键词“明天”和“天气”对应的执行方法名称是“weather_today”:
 ```python
 FUNC_MAP = {
     Keyword(['今天', '天气']).value: 'weather_today'
 }
 ```
-3. 在`handler.py`的`ActionHandler`中加入你需要执行的方法。
+3.在`handler.py`的`ActionHandler`中加入你需要执行的方法。
 ```python
 class ActionHandler(object):
 
@@ -115,4 +115,4 @@ class ActionHandler(object):
         """
         pass
 ```
-4. 大功告成。
+4.大功告成。
