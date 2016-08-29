@@ -44,3 +44,5 @@ result = robot.ask_turing('给我讲个笑话')  # 返回文字信息
 - requests
 - wolframalpha
 
+## 树莓派语音助手示例程序
+请点击[这里](https://github.com/namco1992/voicetools/tree/master/examples/raspi_assistant)
