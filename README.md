@@ -44,4 +44,3 @@ result = robot.ask_turing('给我讲个笑话')  # 返回文字信息
 - requests
 - wolframalpha
 
->>>>>>> dev
