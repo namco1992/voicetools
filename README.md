@@ -13,8 +13,8 @@ pip install voicetools
 ```python
 from voicetools import BaiduVoice
 # api key 及 secret key 请在百度语音官方网站注册获取
-token = BaiduVoice.get_baidu_token('YOUR_VOICE_API_KEY', 'YOUR_VOICE_SECRET')
-bv = BaiduVoice(token)
+token = BaiduVoice.get_baidu_token('YOUR_VOICE_API_KEY', 'YOUR_VOICE_SECRET')  # 该方法返回百度 API 返回的完整 json
+bv = BaiduVoice(token['access_token'])  # 在上述方法获取的 json 中得到 access_token
 # 语音识别
 results = bv.asr('path/to/your/audio/file')  # 返回识别结果列表，可选参数见百度语音文档
 # 语音合成
